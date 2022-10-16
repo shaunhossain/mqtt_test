@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_client.dart';
@@ -75,10 +76,10 @@ class _MyHomePageState extends State<MyHomePage> {
       _disconnect();
     }
 
-    if (client?.connectionState == MqttConnectionState.connected) {
+    if (client?.connectionStatus!.state == MqttConnectionState.connected) {
       log('connect to server');
       setState(() {
-        connectionState = client?.connectionState;
+        connectionState = client?.connectionStatus!.state;
       });
     } else {
       _disconnect();
