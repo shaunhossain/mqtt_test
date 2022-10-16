@@ -44,11 +44,13 @@ class _MyHomePageState extends State<MyHomePage> {
   int port = 1883;
   String username = 'rilus';
   String passwd = 'kingbob';
-  String clientIdentifier = '3ytx51ifsHszdWNI';
+  String clientIdentifier = 'shaun'; // use any unique name here
   String _temp = '';
   MqttClient? client;
   MqttConnectionState? connectionState;
   StreamSubscription? subscription;
+  MqttClientPayloadBuilder mqttClientPayloadBuilder = MqttClientPayloadBuilder();
+  static const String pubTopic = 'mqtt/request';
 
   void connect() async {
     client = MqttServerClient(broker, clientIdentifier);
@@ -62,7 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final MqttConnectMessage connMess = MqttConnectMessage()
         .withClientIdentifier(clientIdentifier)
         .startClean()
-        .keepAliveFor(30)
+        .withWillRetain()
         .withWillQos(MqttQos.atMostOnce);
     client?.connectionMessage = connMess;
 
@@ -83,8 +85,8 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     client?.updates?.listen(_onMessage);
-    _sendMessage();
     _subscribeToTopic('mqtt/request');
+    _sendMessage();
   }
 
   // connection succeeded
@@ -102,7 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final MqttPublishMessage recMess = event[0].payload as MqttPublishMessage;
     final String message =
         MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-    log('response -> $message');
+    log('response -> $message \n');
 
     setState(() {
       _temp = message;
@@ -128,10 +130,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _sendMessage() {
-    const pubTopic = 'mqtt/response';
-    final builder = MqttClientPayloadBuilder();
-    builder.addString('Hello MQTT');
-    client?.publishMessage(pubTopic, MqttQos.atLeastOnce, builder.payload!);
+    mqttClientPayloadBuilder.clear();
+    mqttClientPayloadBuilder.addString('Hello MQTT');
+    client?.publishMessage(pubTopic, MqttQos.atLeastOnce, mqttClientPayloadBuilder.payload!);
   }
 
   @override
@@ -141,8 +142,12 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-          child: Text(
-              "send")), // This trailing comma makes auto-formatting nicer for build methods.
+          child: MaterialButton(
+        onPressed: () {
+          _sendMessage();
+        },
+        child: const Text("send"),
+      )), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
