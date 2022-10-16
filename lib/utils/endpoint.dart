@@ -1,0 +1,11 @@
+const String mapUrl = "https://map.barikoi.com/styles/osm-liberty/style.json?key=";
+const String mapPlaceUrl = "https://barikoi.xyz/v1/api/search/reverse/";
+const String placeLat = "/geocode?latitude=";
+const String placeLon = "&longitude=";
+const String mapPlaceEnabler = "&district=true&post_code=true&sub_district=true&union=true&pauroshova=true&division=true&address=true";
+const String mapDirectionUrl = "http://geoserver.bmapsbd.com:8989/route/";
+const String sourcePoint = "?point=";
+const String destinationPoint = "&point=";
+const String mapDirectionEndPoints = "&locale=en-US&elevation=false&profile=car&use_miles=false&layer=OpenStreetMap&points_encoded=false";
+const String autocompleteSearchUrl = "https://barikoi.xyz/v1/api/search/autocomplete/";
+const String autocompleteEndpoint = "/place?q=";
