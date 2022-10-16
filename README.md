@@ -1,16 +1,8 @@
 # mqtt_test
 
-A new Flutter project.
+For our application to connect with the local MQTT broker, we will use the pub mqtt_client, which can be found on pub.dev with installation instructions here — [https://pub.dev/packages/mqtt_client].
 
-## Getting Started
+Further, let’s create an MQTTClientManager.dart class to help us with the various operations we would like to run in our mobile client. It contains the connect, disconnect, subscribe, publish, and other helper methods required to communicate with the broker.
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- [https://betterprogramming.pub/streaming-flutter-events-with-mosquitto-mqtt-broker-28998a3b81c2]
