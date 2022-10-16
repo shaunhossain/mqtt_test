@@ -45,7 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String username = 'rilus';
   String passwd = 'kingbob';
   String clientIdentifier = '3ytx51ifsHszdWNI';
-  double _temp = 20;
+  String _temp = '';
   MqttClient? client;
   MqttConnectionState? connectionState;
   StreamSubscription? subscription;
@@ -53,14 +53,15 @@ class _MyHomePageState extends State<MyHomePage> {
   void connect() async {
     client = MqttServerClient(broker, clientIdentifier);
     client?.port = port;
-    client?.logging(on: true);
-    client?.keepAlivePeriod = 30;
+    client?.doAutoReconnect(force: false);
+    client?.logging(on: false);
+    client?.keepAlivePeriod = 600;
     client?.onConnected = onConnected;
     client?.onDisconnected = _onDisconnected;
 
     final MqttConnectMessage connMess = MqttConnectMessage()
         .withClientIdentifier(clientIdentifier)
-        .startClean() // Non persistent session for testing
+        .startClean()
         .keepAliveFor(30)
         .withWillQos(MqttQos.atMostOnce);
     client?.connectionMessage = connMess;
@@ -81,9 +82,9 @@ class _MyHomePageState extends State<MyHomePage> {
       _disconnect();
     }
 
-    subscription = client?.updates?.listen(_onMessage);
-
-    _subscribeToTopic("temp");
+    client?.updates?.listen(_onMessage);
+    _sendMessage();
+    _subscribeToTopic('mqtt/request');
   }
 
   // connection succeeded
@@ -101,10 +102,10 @@ class _MyHomePageState extends State<MyHomePage> {
     final MqttPublishMessage recMess = event[0].payload as MqttPublishMessage;
     final String message =
         MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-    log('response -> $recMess');
+    log('response -> $message');
 
     setState(() {
-      _temp = double.parse(message);
+      _temp = message;
     });
   }
 
@@ -126,6 +127,13 @@ class _MyHomePageState extends State<MyHomePage> {
     print('[MQTT client] MQTT client disconnected');
   }
 
+  void _sendMessage() {
+    const pubTopic = 'mqtt/response';
+    final builder = MqttClientPayloadBuilder();
+    builder.addString('Hello MQTT');
+    client?.publishMessage(pubTopic, MqttQos.atLeastOnce, builder.payload!);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -133,13 +141,8 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-          child: MaterialButton(
-        onPressed: () {
-          connect();
-        },
-        child: Text("send"),
-        color: Colors.deepPurple,
-      )), // This trailing comma makes auto-formatting nicer for build methods.
+          child: Text(
+              "send")), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
