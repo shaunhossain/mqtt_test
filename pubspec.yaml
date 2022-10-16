@@ -13,6 +13,9 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.2
   mqtt_client: ^9.7.2
+  get: ^4.6.5
+  get_storage: ^2.0.3
+  rxdart: ^0.27.4
 
 dev_dependencies:
   flutter_test:
