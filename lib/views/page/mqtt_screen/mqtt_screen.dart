@@ -48,11 +48,18 @@ class MqttScreen extends StatelessWidget {
                             border: const OutlineInputBorder(),
                             hintText: 'Your message',
                             counterText: 'Send Button',
+                            icon: IconButton(
+                                color: Colors.deepPurple,
+                                iconSize: 30,
+                                onPressed: () {
+                                  controller.pickImage();
+                                },
+                                icon: const Icon(Icons.upload_file)),
                             suffixIcon: IconButton(
                                 onPressed: () {
                                   Future.delayed(Duration.zero,(){
                                     controller.sendMessage(
-                                        message: controller.textController.text);
+                                        message: controller.textController.text, image: controller.encodedImage);
                                   }).then((value){
                                     controller.textController.clear();
                                   });
@@ -70,8 +77,16 @@ class MqttScreen extends StatelessWidget {
                       child: ListView.builder(
                           itemCount: controller.messageList.value.length,
                           itemBuilder: (context, index) {
-                            return Text(
-                                '${controller.messageList.value[index].msg}');
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                    '${controller.messageList.value[index].msg}'),
+                                if(controller.messageList.value[index].image != null && controller.messageList.value[index].image != 'empty')
+                                  FittedBox(child: Image.memory(controller.imageFromBase64String(base64String: controller.messageList.value[index].image!))),
+                              ],
+                            );
                           }));
                 })
               ],

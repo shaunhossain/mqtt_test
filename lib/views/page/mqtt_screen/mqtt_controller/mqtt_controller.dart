@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:mqtt_test/model/message_response.dart';
@@ -14,11 +17,14 @@ class MqttController extends GetxController {
   String username = 'rilus';
   String passwd = 'kingbob';
   String clientIdentifier = 'shaun'; // use any unique name here
-  String _temp = '';
   MqttClient? client;
   MqttConnectionState? connectionState;
   MqttClientPayloadBuilder mqttClientPayloadBuilder = MqttClientPayloadBuilder();
   static const String pubTopic = 'mqtt/request';
+
+  final ImagePicker _picker = ImagePicker();
+  String encodedImage = 'empty';
+
 
   @override
   void onInit() {
@@ -96,10 +102,27 @@ class MqttController extends GetxController {
     print('[MQTT client] MQTT client disconnected');
   }
 
-  void sendMessage({required String message}) {
-    final response = MessageResponse(msg: message);
+  void sendMessage({required String message, required String image}) {
+    final response = MessageResponse(msg: message, image: image);
     mqttClientPayloadBuilder.clear();
     mqttClientPayloadBuilder.addString(messageResponseToJson(response));
     client?.publishMessage(pubTopic, MqttQos.atLeastOnce, mqttClientPayloadBuilder.payload!);
+  }
+
+  Future<void> pickImage() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    update();
+    _encodeImage(image: image!);
+  }
+
+  Future<void> _encodeImage({required XFile image}) async {
+    final imageByte = await image.readAsBytes();
+    String base64Image = base64Encode(imageByte);
+    encodedImage = base64Image;
+    update();
+  }
+
+  Uint8List imageFromBase64String({required String base64String}) {
+    return const Base64Decoder().convert(base64String);
   }
 }
